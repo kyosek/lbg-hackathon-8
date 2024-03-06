@@ -1,3 +1,9 @@
+exp
+.idea
+*.csv
+*.sqlite3
+d161b494-1d85-4e1a-8ee3-de0d8e5068e4
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

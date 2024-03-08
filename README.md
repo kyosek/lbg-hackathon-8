@@ -10,6 +10,16 @@
 
 ## Usage
 
+For development and testing:
+
 ```shell
-./fositive-vibes-only {test,llm}
+./fositive-vibes-only test
 ```
+
+For the actual app:
+
+```shell
+./fositive-vibes-only llm
+```
+
+This will launch a chat application in your browser.

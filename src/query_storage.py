@@ -11,7 +11,7 @@ from langchain.llms import HuggingFacePipeline
 from ragatouille import RAGPretrainedModel
 
 query = "What happened to Mr. B?"
-READER_MODEL_NAME = "google/gemma-7b"
+READER_MODEL_NAME = "google/gemma-2b"
 EVALUATE_MODEL_NAME = "google/gemma-2b"
 RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
@@ -70,7 +70,7 @@ RAG_PROMPT_TEMPLATE = tokenizer.apply_chat_template(
 )
 
 
-def retrieve_context(query):
+def retrieve_context(db, query):
     docs = db.similarity_search(query, k=10)
 
     retrieved_docs_text = [
@@ -79,7 +79,7 @@ def retrieve_context(query):
     reranked_relevant_docs = RERANKER.rerank(query, retrieved_docs_text, k=3)
     context = "\nExtracted documents:\n"
     context += "".join(
-        [f"Document {str(i)}:::\n" + doc for i, doc in enumerate(reranked_relevant_docs)]
+        [f"Document {i}:::\n{doc}" for i, doc in enumerate(reranked_relevant_docs)]
     )
     return context
 
@@ -118,7 +118,7 @@ def main(query: str):
         persist_directory="chroma_db_sentence_trm",
         embedding_function=embedding_function,
     )
-    context = retrieve_context(query)
+    context = retrieve_context(db, query)
     response = generate_response(query, context)
 
     eval_response = evaluate_response(query, context, response)
@@ -128,7 +128,7 @@ def main(query: str):
         query = response
         i += 1
         while i < 3 & eval_response != "yes":
-            context = retrieve_context(query)
+            context = retrieve_context(db, query)
             response = generate_response(query, context)
 
             eval_response = evaluate_response(query, context, response)

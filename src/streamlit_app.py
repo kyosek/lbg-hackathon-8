@@ -64,7 +64,7 @@ def main() -> None:
     # Define your suggestions
     suggestions = ["What is Consumer Duty?", "How can FOS data help with Consumer Duty?", "Give me a list of things you can help me with?"]
 
-    # Add buttons for each suggestion
+    #Add buttons for each suggestion
     for suggestion in suggestions:
         if st.button(suggestion):
             user_input = suggestion
@@ -77,13 +77,13 @@ def main() -> None:
     # Add a select box to the sidebar
     # suggestion_input = st.sidebar.selectbox("Choose a suggestion", suggestions)
     # Add an input box
-    user_input = st.chat_input("Input your question!")
+    # user_input = st.chat_input("Input your question!")
 
     # Use the input from the suggestion box or the input box
     # user_input = suggestion_input if suggestion_input else text_input
 
-    # if user_input or user_input := st.chat_input("Input your question!"):
-    if user_input:
+    if user_input := st.chat_input("Input your question!"):
+    # if user_input:
         st.session_state.messages.append(HumanMessage(content=user_input))
         with st.spinner("Bot is typing ..."):
             answer = get_answer(llm, user_input)

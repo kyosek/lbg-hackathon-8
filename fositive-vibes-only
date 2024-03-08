@@ -2,4 +2,4 @@
 
 cd src/ || return
 export PYTHONPATH="."
-streamlit run streamlit_app.py
+streamlit run streamlit_app.py "$1"

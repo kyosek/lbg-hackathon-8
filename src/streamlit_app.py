@@ -27,7 +27,7 @@ def select_llm() -> LlamaCPP:
     # # print output to the console
     # print(current_working_directory)
     return LlamaCPP(
-    model_path="/content/llama-2-7b-chat.Q2_K.gguf",
+    model_path=r"./content/llama-2-7b-chat.Q2_K.gguf",
     temperature=0.1,
     max_new_tokens=500,
     context_window=3900,

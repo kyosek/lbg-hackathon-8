@@ -1,73 +1,56 @@
 import logging
+from langchain_openai import OpenAI
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
 )
 from langchain.vectorstores import Chroma
 from transformers import pipeline
-import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from langchain.prompts import PromptTemplate
 from langchain.llms import HuggingFacePipeline
 from ragatouille import RAGPretrainedModel
 
 query = "What happened to Mr. B?"
-READER_MODEL_NAME = "google/gemma-2b"
-EVALUATE_MODEL_NAME = "google/gemma-2b"
-RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
+# READER_MODEL_NAME = "McGill-NLP/flan-t5-base-weblinx"
+# EVALUATE_MODEL_NAME = "McGill-NLP/flan-t5-base-weblinx"
+# RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
-model = AutoModelForCausalLM.from_pretrained(READER_MODEL_NAME)
-tokenizer = AutoTokenizer.from_pretrained(READER_MODEL_NAME)
-eval_model = AutoModelForCausalLM.from_pretrained(EVALUATE_MODEL_NAME)
-eval_tokenizer = AutoTokenizer.from_pretrained(EVALUATE_MODEL_NAME)
+# model = AutoModelForCausalLM.from_pretrained(READER_MODEL_NAME)
+# tokenizer = AutoTokenizer.from_pretrained(READER_MODEL_NAME)
+# eval_model = AutoModelForCausalLM.from_pretrained(EVALUATE_MODEL_NAME)
+# eval_tokenizer = AutoTokenizer.from_pretrained(EVALUATE_MODEL_NAME)
 embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
-READER_LLM = pipeline(
-    model=model,
-    tokenizer=tokenizer,
-    task="text-generation",
-    do_sample=True,
-    temperature=0.2,
-    repetition_penalty=1.1,
-    return_full_text=False,
-    max_new_tokens=500,
-)
+openai_llm = OpenAI(temperature=0)
 
-EVAL_LLM = pipeline(
-    model=eval_model,
-    tokenizer=eval_tokenizer,
-    task="text-generation",
-    do_sample=True,
-    temperature=0.1,
-    repetition_penalty=1.1,
-    return_full_text=False,
-    max_new_tokens=500,
-)
+# READER_LLM = pipeline(
+#     model=model,
+#     tokenizer=tokenizer,
+#     task="text-generation",
+#     do_sample=True,
+#     temperature=0.2,
+#     repetition_penalty=1.1,
+#     return_full_text=False,
+#     max_new_tokens=500,
+# )
+#
+# EVAL_LLM = pipeline(
+#     model=eval_model,
+#     tokenizer=eval_tokenizer,
+#     task="text-generation",
+#     do_sample=True,
+#     temperature=0.1,
+#     repetition_penalty=1.1,
+#     return_full_text=False,
+#     max_new_tokens=500,
+# )
 
-llm = HuggingFacePipeline(pipeline=READER_LLM)
-eval_llm = HuggingFacePipeline(pipeline=EVAL_LLM)
+# llm = HuggingFacePipeline(pipeline=READER_LLM)
+# eval_llm = HuggingFacePipeline(pipeline=EVAL_LLM)
 
-prompt_in_chat_format = [
-    {
-        "role": "system",
-        "content": """Using the information contained in the context,
-        give a comprehensive answer to the query.
-        Respond only to the question asked, response should be concise and relevant to the question.
-        Provide the number of the source document when relevant.
-        If the answer cannot be deduced from the context, do not give an answer.""",
-    },
-    {
-        "role": "user",
-        "content": """Context:
-        {context}
-        ---
-        Now here is the question you need to answer.
-        
-        Question: {question}""",
-    },
-]
-RAG_PROMPT_TEMPLATE = tokenizer.apply_chat_template(
-    prompt_in_chat_format, tokenize=False, add_generation_prompt=True
-)
+# RAG_PROMPT_TEMPLATE = tokenizer.apply_chat_template(
+#     prompt_in_chat_format, tokenize=False, add_generation_prompt=True
+# )
 
 
 def retrieve_context(db, query):
@@ -85,9 +68,23 @@ def retrieve_context(db, query):
 
 
 def generate_response(query, context):
-    final_prompt = RAG_PROMPT_TEMPLATE.format(question=query, context=context)
+    final_prompt = f"""
+        "role": "system"\n
+        content: Using the information contained in the context,
+        give a comprehensive answer to the query.
+        Respond only to the question asked, response should be concise and relevant to the question.
+        Provide the number of the source document when relevant.
+        If the answer cannot be deduced from the context, do not give an answer.
+        "role": "user",
+        "content": "Context:
+        {context}
+        ---
+        Now here is the question you need to answer.
+        
+        Question: {query}
+"""
 
-    response = llm(final_prompt)
+    response = openai_llm(final_prompt)
     return response
 
 
@@ -121,19 +118,21 @@ def main(query: str):
     context = retrieve_context(db, query)
     response = generate_response(query, context)
 
-    eval_response = evaluate_response(query, context, response)
-    if eval_response == "yes":
-        return response
-    else:
-        query = response
-        i += 1
-        while i < 3 & eval_response != "yes":
-            context = retrieve_context(db, query)
-            response = generate_response(query, context)
+    return response
 
-            eval_response = evaluate_response(query, context, response)
-
-        return response
+    # eval_response = evaluate_response(query, context, response)
+    # if eval_response == "yes":
+    #     return response
+    # else:
+    #     query = response
+    #     i += 1
+    #     while i < 3 & eval_response != "yes":
+    #         context = retrieve_context(db, query)
+    #         response = generate_response(query, context)
+    #
+    #         eval_response = evaluate_response(query, context, response)
+    #
+    #     return response
 
 
 if __name__ == "__main__":

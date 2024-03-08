@@ -1,13 +1,13 @@
-import streamlit as st
-from llama_index import (
-    SimpleDirectoryReader,
-    VectorStoreIndex,
-    ServiceContext,
+import streamlit as st 
+from llama_index.core import (
+  SimpleDirectoryReader,
+  VectorStoreIndex,
+  ServiceContext,
 )
-from llama_index.llms import LlamaCPP
-from llama_index.llms.llama_utils import (
-    messages_to_prompt,
-    completion_to_prompt,
+from llama_index.llms.llama_cpp import LlamaCPP
+from llama_index.llms.llama_cpp.llama_utils import (
+  messages_to_prompt,
+  completion_to_prompt,
 )
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
@@ -19,18 +19,24 @@ def init_page() -> None:
 
 
 def select_llm() -> LlamaCPP:
-    return LlamaCPP(
-        model_path="/content/llama-2-7b-chat.Q2_K.gguf",
-        temperature=0.1,
-        max_new_tokens=500,
-        context_window=3900,
-        generate_kwargs={},
-        model_kwargs={"n_gpu_layers": 1},
-        messages_to_prompt=messages_to_prompt,
-        completion_to_prompt=completion_to_prompt,
-        verbose=True,
-    )
+    # import os
 
+    # # get the current working directory
+    # current_working_directory = os.getcwd()
+
+    # # print output to the console
+    # print(current_working_directory)
+    return LlamaCPP(
+    model_path="/content/llama-2-7b-chat.Q2_K.gguf",
+    temperature=0.1,
+    max_new_tokens=500,
+    context_window=3900,
+    generate_kwargs={},
+    model_kwargs={"n_gpu_layers":1},
+    messages_to_prompt=messages_to_prompt,
+    completion_to_prompt=completion_to_prompt,
+    verbose=True,
+  )
 
 def init_messages() -> None:
     clear_button = st.sidebar.button("Clear Conversation", key="clear")

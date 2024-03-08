@@ -5,6 +5,7 @@ exp
 *.sqlite3
 d161b494-1d85-4e1a-8ee3-de0d8e5068e4
 349f2bf4-1be0-4c7f-8265-5ee433dace39
+*.gguf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

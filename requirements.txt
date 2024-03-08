@@ -126,3 +126,9 @@ websockets==12.0
 wrapt==1.16.0
 yarl==1.9.4
 zipp==3.17.0
+langchain
+wget
+llama-index
+cohere
+llama-cpp-python
+llama-index-llms-llama-cpp

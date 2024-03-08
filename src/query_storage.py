@@ -59,9 +59,13 @@ if __name__ == "__main__":
     )
     docs = db.similarity_search(query, k=10)
 
-    retrieved_docs_text = [doc.page_content for doc in docs]  # we only need the text of the documents
+    retrieved_docs_text = [
+        doc.page_content for doc in docs
+    ]  # we only need the text of the documents
     context = "\nExtracted documents:\n"
-    context += "".join([f"Document {str(i)}:::\n" + doc for i, doc in enumerate(retrieved_docs_text)])
+    context += "".join(
+        [f"Document {str(i)}:::\n" + doc for i, doc in enumerate(retrieved_docs_text)]
+    )
 
     final_prompt = RAG_PROMPT_TEMPLATE.format(question=query, context=context)
 

@@ -13,7 +13,7 @@ from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
 
 def init_page() -> None:
-    st.set_page_config(page_title="FOS Consumer Duty Bot")
+    st.set_page_config(page_title="FOS Consumer Duty Chat Bot")
     st.header("FOS Consumer Duty Bot")
     st.sidebar.title("Options")
 
@@ -57,10 +57,12 @@ def main() -> None:
     init_page()
     llm = select_llm()
     init_messages()
-
+# lbg-square-logo.png
+    with st.columns(3)[1]:
+        st.image('../img/lbg-square-logo.png')
     
     # Define your suggestions
-    suggestions = ["What is python?", "What is Data Science?", "What is ML?"]
+    suggestions = ["What is Consumer Duty?", "How can FOS data help with Consumer Duty?", "Give me a list of things you can help me with?"]
 
     # Add buttons for each suggestion
     for suggestion in suggestions:

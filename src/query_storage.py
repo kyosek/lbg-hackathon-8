@@ -8,9 +8,12 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from langchain.prompts import PromptTemplate
 from langchain.llms import HuggingFacePipeline
+from ragatouille import RAGPretrainedModel
 
 query = "What happened to Mr. B?"
-READER_MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
+READER_MODEL_NAME = "google/gemma-7b"
+EVALUATE_MODEL_NAME = "google/gemma-2b"
+RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
 model = AutoModelForCausalLM.from_pretrained(READER_MODEL_NAME)
 tokenizer = AutoTokenizer.from_pretrained(READER_MODEL_NAME)
@@ -51,6 +54,7 @@ RAG_PROMPT_TEMPLATE = tokenizer.apply_chat_template(
     prompt_in_chat_format, tokenize=False, add_generation_prompt=True
 )
 
+
 if __name__ == "__main__":
     embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     db = Chroma(
@@ -61,13 +65,15 @@ if __name__ == "__main__":
 
     retrieved_docs_text = [
         doc.page_content for doc in docs
-    ]  # we only need the text of the documents
+    ]
+    reranked_relevant_docs = RERANKER.rerank(query, retrieved_docs_text, k=3)
     context = "\nExtracted documents:\n"
     context += "".join(
-        [f"Document {str(i)}:::\n" + doc for i, doc in enumerate(retrieved_docs_text)]
+        [f"Document {str(i)}:::\n" + doc for i, doc in enumerate(reranked_relevant_docs)]
     )
 
     final_prompt = RAG_PROMPT_TEMPLATE.format(question=query, context=context)
 
     response = llm(final_prompt)
+
     print(response)

@@ -1,5 +1,4 @@
 #!/bin/bash
 
-cd src/ || return
-export PYTHONPATH="."
-streamlit run streamlit_app.py "$1"
+export PYTHONPATH="src"
+streamlit run src/app_framework.py "$1"

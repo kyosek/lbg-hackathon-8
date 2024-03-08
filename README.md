@@ -1,28 +1,15 @@
-# lbg-hackathon-8
-lbg-hackathon-8
+# FOS-itive vibes only
 
-A simple persist vector store with sentence transformer embeddings and Chroma.
+## Installation
 
-You can query by similarity search.
+1. `pip install -r requirements.txt`
 
-Example:
-Query - What happened to Mr. B?
-Top search result:
-![top search result](docs/simple-query-search.png)
+2. Sign up to huggingface, aggree to the T&Cs for https://huggingface.co/google/gemma-7b and place an authentication token at `~/.cache/huggingface/token`.
 
+3. Ask the repository maintainer to share the chroma vector db files with you.
 
-For stream-lit pip install the following:
+## Usage
 
-`pip install -qq langchain wget llama-index cohere llama-cpp-python llama-index-llms-llama-cpp`
-
-and then to download the model:
-
-```python 
-import wget 
-
-def bar_custom(current, total, width=80):
-    print("Downloading %d%% [%d / %d] bytes" % (current / total * 100, current, total))
-
-model_url = "https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q2_K.gguf"
-wget.download(model_url, bar=bar_custom)
+```shell
+./fositive-vibes-only {test,llm}
 ```

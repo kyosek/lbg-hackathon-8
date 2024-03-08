@@ -108,7 +108,7 @@ def evaluate_response(query, context, response):
     return eval_llm
 
 
-def main(query: str):
+def main(query: str) -> str:
     i = 0
     db = Chroma(
         persist_directory="chroma_db_sentence_trm",

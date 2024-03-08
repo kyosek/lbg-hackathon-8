@@ -72,7 +72,7 @@ def generate_response(query, context):
         content: Using the information contained in the context,
         give a comprehensive answer to the query.
         Respond only to the question asked, response should be concise and relevant to the question.
-        Provide the number of the source document when relevant.
+        Provide the the source document when relevant.
         If the answer cannot be deduced from the context, do not give an answer.
         "role": "user",
         "content": "Context:
@@ -88,8 +88,7 @@ def generate_response(query, context):
 
 
 def evaluate_response(query, context, response):
-    evaluation_prompt = PromptTemplate(
-        template="""You are a grader assessing the quality of the response given a user query and the context.\n
+    evaluation_prompt = f"""You are a grader assessing the quality of the response given a user query and the context.\n
             Here is the context document: \n {context} \n
             Here is the user query: \n {query} \n
             Here is the generated response: \n {response} \n
@@ -99,13 +98,11 @@ def evaluate_response(query, context, response):
             If the binary score is 'yes', provide the score as a text variable with a single key 'score'
             and no preamble or explanation.\n
             If the binary score is 'no', re-write the query in the way it helps to retrieve more revelent context.
-            """,
-        input_variables=["query", "question", "context"],
-    )
+            """
 
-    eval_response = eval_llm(evaluation_prompt)
+    eval_response = openai_llm(evaluation_prompt)
 
-    return eval_llm
+    return eval_response
 
 
 def main(query: str) -> str:
@@ -117,21 +114,21 @@ def main(query: str) -> str:
     context = retrieve_context(db, query)
     response = generate_response(query, context)
 
-    return response
+    # return response
 
-    # eval_response = evaluate_response(query, context, response)
-    # if eval_response == "yes":
-    #     return response
-    # else:
-    #     query = response
-    #     i += 1
-    #     while i < 3 & eval_response != "yes":
-    #         context = retrieve_context(db, query)
-    #         response = generate_response(query, context)
-    #
-    #         eval_response = evaluate_response(query, context, response)
-    #
-    #     return response
+    eval_response = evaluate_response(query, context, response)
+    if eval_response == "yes":
+        return response
+    else:
+        query = response
+        while i < 3 & eval_response != "yes":
+            i += 1
+            context = retrieve_context(db, query)
+            response = generate_response(query, context)
+
+            eval_response = evaluate_response(query, context, response)
+
+        return response
 
 
 if __name__ == "__main__":

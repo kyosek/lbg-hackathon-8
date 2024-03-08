@@ -54,7 +54,7 @@ openai_llm = OpenAI(temperature=0)
 
 
 def retrieve_context(db, query):
-    docs = db.similarity_search(query, k=10)
+    docs = db.similarity_search(query, k=3)
 
     retrieved_docs_text = [
         doc.page_content for doc in docs
@@ -117,12 +117,12 @@ def main(query: str) -> str:
     # return response
 
     eval_response = evaluate_response(query, context, response)
-    if eval_response == "yes":
+    if "yes" in eval_response:
         return response
     else:
-        query = response
-        while i < 3 & eval_response != "yes":
+        while (i < 3) & ("yes" not in eval_response):
             i += 1
+            query = response
             context = retrieve_context(db, query)
             response = generate_response(query, context)
 

@@ -1,15 +1,6 @@
 import streamlit as st 
-from llama_index.core import (
-  SimpleDirectoryReader,
-  VectorStoreIndex,
-  ServiceContext,
-)
-from llama_index.llms.llama_cpp import LlamaCPP
-from llama_index.llms.llama_cpp.llama_utils import (
-  messages_to_prompt,
-  completion_to_prompt,
-)
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from get_answer import get_answer
 
 
 def init_page() -> None:
@@ -17,26 +8,6 @@ def init_page() -> None:
     st.header("FOS Consumer Duty Bot")
     st.sidebar.title("Options")
 
-
-def select_llm() -> LlamaCPP:
-    # import os
-
-    # # get the current working directory
-    # current_working_directory = os.getcwd()
-
-    # # print output to the console
-    # print(current_working_directory)
-    return LlamaCPP(
-    model_path=r"./content/llama-2-7b-chat.Q2_K.gguf",
-    temperature=0.1,
-    max_new_tokens=500,
-    context_window=3900,
-    generate_kwargs={},
-    model_kwargs={"n_gpu_layers":1},
-    messages_to_prompt=messages_to_prompt,
-    completion_to_prompt=completion_to_prompt,
-    verbose=True,
-  )
 
 def init_messages() -> None:
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
@@ -48,14 +19,8 @@ def init_messages() -> None:
         ]
 
 
-def get_answer(llm, messages) -> str:
-    response = llm.complete(messages)
-    return response.text
-
-
 def main() -> None:
     init_page()
-    llm = select_llm()
     init_messages()
 # lbg-square-logo.png
     with st.columns(3)[1]:
@@ -70,7 +35,7 @@ def main() -> None:
             user_input = suggestion
             st.session_state.messages.append(HumanMessage(content=user_input))
             with st.spinner("Bot is typing ..."):
-                answer = get_answer(llm, user_input)
+                answer = get_answer(user_input)
                 print(answer)
             st.session_state.messages.append(AIMessage(content=answer))
 
@@ -86,7 +51,7 @@ def main() -> None:
     if user_input:
         st.session_state.messages.append(HumanMessage(content=user_input))
         with st.spinner("Bot is typing ..."):
-            answer = get_answer(llm, user_input)
+            answer = get_answer(user_input)
             print(answer)
         st.session_state.messages.append(AIMessage(content=answer))
 

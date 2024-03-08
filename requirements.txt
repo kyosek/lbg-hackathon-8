@@ -1,5 +1,6 @@
 RAGatouille
 aiohttp
+streamlit
 aiosignal==1.3.1
 annotated-types==0.6.0
 anyio==4.3.0

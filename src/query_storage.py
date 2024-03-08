@@ -59,10 +59,9 @@ def retrieve_context(db, query):
     retrieved_docs_text = [
         doc.page_content for doc in docs
     ]
-    reranked_relevant_docs = RERANKER.rerank(query, retrieved_docs_text, k=3)
     context = "\nExtracted documents:\n"
     context += "".join(
-        [f"Document {i}:::\n{doc}" for i, doc in enumerate(reranked_relevant_docs)]
+        [f"Document {i}:::\n{doc}" for i, doc in enumerate(retrieved_docs_text)]
     )
     return context
 

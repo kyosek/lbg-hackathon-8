@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd src/ || return
+export PYTHONPATH="."
+streamlit run streamlit_app.py "$1"
